@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News Article</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; line-height: 1.6; }
+    .article-img { max-width: 100%; border-radius: 12px; }
+    h1 { font-size: 2rem; margin-top: 1rem; }
+    .meta { color: gray; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+
+  <div id="article-container"></div>
+
+  <script>
+    const container = document.getElementById("article-container");
+    const article = JSON.parse(localStorage.getItem("selectedArticle"));
+
+    if (article) {
+      container.innerHTML = `
+        <img src="${article.img}" class="article-img" alt="${article.title}">
+        <h1>${article.title}</h1>
+        <div class="meta">${article.date} | ${article.category}</div>
+        <p>${article.body}</p>
+      `;
+    } else {
+      container.innerHTML = "<p>Article not found.</p>";
+    }
+  </script>
+
+</body>
+</html>
