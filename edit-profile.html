@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Profile</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f4f4; padding:30px; }
+    .profile-box { width:420px; margin:auto; background:white; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.08); }
+    .profile-picture { width:120px; height:120px; border-radius:50%; object-fit:cover; display:block; margin:auto; border:3px solid #0d6efd; }
+    .input-box { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:6px; }
+    button { background:#0d6efd; color:white; padding:10px 18px; border:none; border-radius:6px; cursor:pointer; width:100%; margin-top:10px; }
+    .danger { background:#dc3545; }
+    .row { display:flex; gap:10px; }
+    .half { flex:1; }
+    .small { font-size:13px; color:#666; text-align:center; margin-top:8px; }
+  </style>
+</head>
+
+<body>
+
+  <div class="profile-container">
+
+    <h2 class="profile-title">Edit Profile</h2>
+
+    <!-- Profile Photo -->
+    <div class="profile-photo-wrapper">
+      <img id="edit-photo-preview" class="profile-photo" src="" alt="Profile Photo">
+    </div>
+
+    <label class="input-label">Change Profile Photo</label>
+    <input type="file" id="edit-photo" class="file-input">
+
+    <label class="input-label">Username</label>
+    <input type="text" id="edit-username" class="profile-input">
+
+    <label class="input-label">Email</label>
+    <input type="email" id="edit-email" class="profile-input">
+
+    <label class="input-label">Password</label>
+    <input type="password" id="edit-password" class="profile-input">
+
+    <button id="save-changes-btn" class="save-btn">Save Changes</button>
+    <button class="cancel-btn" onclick="window.location.href='profile.html'">Cancel</button>
+
+  </div>
+
+  <script>
+    // Load user
+let user = JSON.parse(localStorage.getItem("loggedInUser"));
+
+// if (!user) {
+//   alert("You must be logged in first.");
+//   window.location.href = "login.html";
+// }
+
+// Auto-fill form fields
+document.getElementById("edit-username").value = user.username;
+document.getElementById("edit-email").value = user.email;
+document.getElementById("edit-password").value = user.password;
+
+// Load profile photo
+if (user.photo) {
+  document.getElementById("edit-photo-preview").src = user.photo;
+}
+
+// SAVE CHANGES
+document.getElementById("save-changes-btn").onclick = () => {
+  user.username = document.getElementById("edit-username").value;
+  user.email = document.getElementById("edit-email").value;
+  user.password = document.getElementById("edit-password").value;
+
+  let file = document.getElementById("edit-photo").files[0];
+
+  if (file) {
+    let reader = new FileReader();
+    reader.onload = () => {
+      user.photo = reader.result;
+      saveUser();
+    };
+    reader.readAsDataURL(file);
+  } else {
+    saveUser();
+  }
+};
+
+function saveUser() {
+  localStorage.setItem("userAccount", JSON.stringify(user));
+  localStorage.setItem("loggedInUser", JSON.stringify(user));
+
+  alert("Profile updated!");
+  window.location.href = "profile.html";
+}
+
+  </script>
+
+</body>
+</html>

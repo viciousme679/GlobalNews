@@ -257,7 +257,7 @@
   }
 
   function handleSignIn() {
-    window.location.href = 'login.html';
+    window.location.href = 'auth.html';
   }
 
   function handleLogOut() {
@@ -297,7 +297,7 @@ document.getElementById("close-body-editor").addEventListener("click", () => {
 
 // Logout  
 document.getElementById("logout-btn").addEventListener("click", () => {
-      window.location.href = "login.html";
+      window.location.href = "auth.html";
     
 })
 

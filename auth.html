@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Auth — Login / Signup</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f4f4; padding:30px; }
+    .box { width:400px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+    input { width:100%; padding:10px; margin:8px 0; border-radius:6px; border:1px solid #ccc; }
+    button { width:100%; padding:10px; border-radius:6px; border:none; background:#0d6efd; color:#fff; cursor:pointer; }
+    .switch { text-align:center; margin-top:12px; color:#666; cursor:pointer; }
+    .small { font-size:13px; color:#666; margin-top:8px; text-align:left; }
+  </style>
+</head>
+<body>
+  <div class="box" id="auth-box"></div>
+
+<script>
+/*
+Simple multi-user auth using localStorage keys:
+- 'users' : JSON array of user objects { id, username, email, password, photo }
+- 'loggedInUserId' : id of the currently logged-in user (string) or null
+*/
+
+// Helpers
+function getUsers() {
+  return JSON.parse(localStorage.getItem("users") || "[]");
+}
+function saveUsers(users) {
+  localStorage.setItem("users", JSON.stringify(users));
+}
+function setLoggedInUserId(id) {
+  if (id === null) localStorage.removeItem("loggedInUserId");
+  else localStorage.setItem("loggedInUserId", id);
+}
+function getLoggedInUserId() {
+  return localStorage.getItem("loggedInUserId");
+}
+function findUserByUsername(username) {
+  return getUsers().find(u => u.username.toLowerCase() === username.toLowerCase());
+}
+function findUserById(id) {
+  return getUsers().find(u => u.id === id);
+}
+
+// UI
+function showLogin() {
+  document.getElementById("auth-box").innerHTML = `
+    <h2 style="text-align:center">Log In</h2>
+    <input id="login-username" placeholder="Username" />
+    <input id="login-password" placeholder="Password" type="password" />
+    <button id="login-btn">Log In</button>
+    <p class="switch" id="to-signup">Don't have an account? Sign up</p>
+    <p class="small">This demo stores credentials in localStorage for local/testing use only.</p>
+  `;
+  document.getElementById("to-signup").onclick = showSignup;
+  document.getElementById("login-btn").onclick = login;
+}
+
+function showSignup() {
+  document.getElementById("auth-box").innerHTML = `
+    <h2 style="text-align:center">Create Account</h2>
+    <input id="signup-username" placeholder="Username" />
+    <input id="signup-email" placeholder="Email" type="email" />
+    <input id="signup-password" placeholder="Password" type="password" />
+    <label style="font-size:13px;color:#666">Optional profile photo</label>
+    <input id="signup-photo" type="file" accept="image/*" />
+    <button id="signup-btn">Sign Up</button>
+    <p class="switch" id="to-login">Already have an account? Log in</p>
+    <p class="small">Username must be unique. Passwords are stored in plain text here for demo only (not for production).</p>
+  `;
+  document.getElementById("to-login").onclick = showLogin;
+  document.getElementById("signup-btn").onclick = signup;
+}
+
+// Signup
+function signup() {
+  const username = document.getElementById("signup-username").value.trim();
+  const email = document.getElementById("signup-email").value.trim();
+  const password = document.getElementById("signup-password").value;
+  const photoFile = document.getElementById("signup-photo").files[0];
+
+  if (!username || !email || !password) {
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  if (findUserByUsername(username)) {
+    alert("That username is already taken. Pick another.");
+    return;
+  }
+
+  const id = Date.now().toString(); // simple unique id
+  const newUser = { id, username, email, password, photo: "" };
+
+  function finishSignup() {
+    const users = getUsers();
+    users.push(newUser);
+    saveUsers(users);
+    alert("Account created! Please log in.");
+    showLogin();
+  }
+
+  if (photoFile) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      newUser.photo = reader.result;
+      finishSignup();
+    };
+    reader.readAsDataURL(photoFile);
+  } else {
+    finishSignup();
+  }
+}
+
+// Login
+function login() {
+  const username = document.getElementById("login-username").value.trim();
+  const password = document.getElementById("login-password").value;
+  const stored = findUserByUsername(username);
+  if (!stored) {
+    alert("No account found with that username.");
+    return;
+  }
+  if (stored.password !== password) {
+    alert("Incorrect password.");
+    return;
+  }
+  setLoggedInUserId(stored.id);
+  // Redirect to profile
+  window.location.href = "index.html";
+}
+
+// If already logged in, go to profile
+if (getLoggedInUserId()) {
+  window.location.href = "profile.html";
+} else {
+  showLogin();
+}
+</script>
+</body>
+</html>
