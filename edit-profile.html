@@ -1,97 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
   <title>Edit Profile</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body { font-family: Arial, sans-serif; background:#f4f4f4; padding:30px; }
-    .profile-box { width:420px; margin:auto; background:white; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.08); }
-    .profile-picture { width:120px; height:120px; border-radius:50%; object-fit:cover; display:block; margin:auto; border:3px solid #0d6efd; }
-    .input-box { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:6px; }
-    button { background:#0d6efd; color:white; padding:10px 18px; border:none; border-radius:6px; cursor:pointer; width:100%; margin-top:10px; }
-    .danger { background:#dc3545; }
-    .row { display:flex; gap:10px; }
-    .half { flex:1; }
-    .small { font-size:13px; color:#666; text-align:center; margin-top:8px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 30px;
+    }
+    .profile-box {
+      width: 420px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    .profile-picture {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      margin: auto;
+      border: 3px solid #0d6efd;
+    }
+    .input-box {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background: #0d6efd;
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .danger {
+      background: #dc3545;
+    }
   </style>
 </head>
 
 <body>
+  <div class="profile-box" id="profile-box">
+    <h2 style="text-align:center;">Edit Profile</h2>
 
-  <div class="profile-container">
+    <img id="edit-pic-preview" class="profile-picture" src="default-profile.png" alt="profile">
 
-    <h2 class="profile-title">Edit Profile</h2>
+    <input type="file" id="edit-photo" accept="image/*" class="input-box" style="width:395px;">
 
-    <!-- Profile Photo -->
-    <div class="profile-photo-wrapper">
-      <img id="edit-photo-preview" class="profile-photo" src="" alt="Profile Photo">
-    </div>
+    <label><b>Username</b></label>
+    <input type="text" id="profile-username" class="input-box" style="width:395px" readonly/>
 
-    <label class="input-label">Change Profile Photo</label>
-    <input type="file" id="edit-photo" class="file-input">
+        <label><b>New Username</b></label>
+        <input type="text" id="new-username" class="input-box" style="width:395px">
 
-    <label class="input-label">Username</label>
-    <input type="text" id="edit-username" class="profile-input">
+    <label><b>Email</b></label>
+    <input type="email" id="profile-email" class="input-box" style="width:395px" readonly/>
 
-    <label class="input-label">Email</label>
-    <input type="email" id="edit-email" class="profile-input">
+        <label><b>New Email</b></label>
+        <input type="email" id="new-email" class="input-box" style="width:395px">
 
-    <label class="input-label">Password</label>
-    <input type="password" id="edit-password" class="profile-input">
+    <label><b>Password</b></label>
+    <input type="password" id="profile-password" class="input-box" style="width:395px" readonly/>
 
-    <button id="save-changes-btn" class="save-btn">Save Changes</button>
-    <button class="cancel-btn" onclick="window.location.href='profile.html'">Cancel</button>
+        <label><b>New Password</b></label>
+        <input type="password" id="new-password" class="input-box" style="width:395px">
+
+    <button id="save-changes-btn">Save Changes</button>
+    <button onclick="window.location.href='profile.html'" class="danger">Cancel</button>
 
   </div>
 
   <script>
-    // Load user
-let user = JSON.parse(localStorage.getItem("loggedInUser"));
+    // Read users and logged-in user
+    function getUsers() {
+      return JSON.parse(localStorage.getItem("users") || "[]");
+    }
+    function saveUsers(users) {
+      localStorage.setItem("users", JSON.stringify(users));
+    }
+    function getLoggedInUserId() {
+      return localStorage.getItem("loggedInUserId");
+    }
 
-// if (!user) {
-//   alert("You must be logged in first.");
-//   window.location.href = "login.html";
-// }
+    const loggedId = getLoggedInUserId();
+    if (!loggedId) {
+      alert("You must log in first.");
+      window.location.href = "auth.html";
+    }
 
-// Auto-fill form fields
-document.getElementById("edit-username").value = user.username;
-document.getElementById("edit-email").value = user.email;
-document.getElementById("edit-password").value = user.password;
+    let users = getUsers();
+    let userIndex = users.findIndex(u => u.id === loggedId);
+    if (userIndex === -1) {
+      alert("User not found.");
+      window.location.href = "auth.html";
+    }
 
-// Load profile photo
-if (user.photo) {
-  document.getElementById("edit-photo-preview").src = user.photo;
-}
+    let user = users[userIndex];
+    
 
-// SAVE CHANGES
-document.getElementById("save-changes-btn").onclick = () => {
-  user.username = document.getElementById("edit-username").value;
-  user.email = document.getElementById("edit-email").value;
-  user.password = document.getElementById("edit-password").value;
+    // Prefill image preview
+    const pic = document.getElementById("edit-pic-preview");
+    pic.src = user.photo || "default-profile.png";
 
-  let file = document.getElementById("edit-photo").files[0];
+    document.getElementById("profile-username").value = user.username;
+    document.getElementById("profile-email").value = user.email;
+    document.getElementById("profile-password").value = user.password;
 
-  if (file) {
-    let reader = new FileReader();
-    reader.onload = () => {
-      user.photo = reader.result;
-      saveUser();
+    // Instant preview when new image is selected
+    document.getElementById("edit-photo").addEventListener("change", function () {
+      const file = this.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => pic.src = reader.result;
+      reader.readAsDataURL(file);
+    });
+
+    // SAVE CHANGES
+    document.getElementById("save-changes-btn").onclick = () => {
+      const newUsername = document.getElementById("new-username").value.trim();
+      const newEmail = document.getElementById("new-email").value.trim();
+      const newPassword = document.getElementById("new-password").value.trim();
+      const photoFile = document.getElementById("edit-photo").files[0];
+
+      if (!newUsername || !newEmail || !newPassword) {
+        alert("All fields are required.");
+        return;
+      }
+
+      // Prevent username duplicates
+      const otherUsers = users.filter((u, i) => i !== userIndex);
+      if (otherUsers.some(u => u.username.toLowerCase() === newUsername.toLowerCase())) {
+        alert("Username already taken.");
+        return;
+      }
+
+      function finishSave(photoData) {
+        user.username = newUsername;
+        user.email = newEmail;
+        user.password = newPassword;
+        if (photoData) user.photo = photoData;
+
+        users[userIndex] = user;
+        saveUsers(users);
+
+        alert("Profile updated!");
+        window.location.href = "profile.html";
+      }
+
+      if (photoFile) {
+        const reader = new FileReader();
+        reader.onload = () => finishSave(reader.result);
+        reader.readAsDataURL(photoFile);
+      } else {
+        finishSave();
+      }
     };
-    reader.readAsDataURL(file);
-  } else {
-    saveUser();
-  }
-};
-
-function saveUser() {
-  localStorage.setItem("userAccount", JSON.stringify(user));
-  localStorage.setItem("loggedInUser", JSON.stringify(user));
-
-  alert("Profile updated!");
-  window.location.href = "profile.html";
-}
-
   </script>
 
 </body>

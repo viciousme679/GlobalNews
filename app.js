@@ -119,34 +119,34 @@
       });
     }
 
-    // PUBLISH STORY
     document.getElementById('post-news').addEventListener('click', () => {
-      const bodyText = document.getElementById('news-body').value.trim();
-      if (!bodyText) {
-        alert("Please write the news body.");
-        return;
-      }
+  const bodyText = document.getElementById('news-body').value.trim();
+  if (!bodyText) {
+    alert("Please write the news body.");
+    return;
+  }
 
-      tempArticle.date = generatePostDate();
-      tempArticle.body = bodyText;
+  // ADD AUTHOR HERE
+  const loggedUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  tempArticle.author = loggedUser.username;
 
-      newsData.unshift(tempArticle);
-      localStorage.setItem("newsData", JSON.stringify(newsData));
+  tempArticle.date = generatePostDate();
+  tempArticle.body = bodyText;
 
+  newsData.unshift(tempArticle);
+  localStorage.setItem("newsData", JSON.stringify(newsData));
 
-      // Reset temporary data
-      selectedImageBase64 = "";
-      tempArticle = {};
-      document.getElementById('news-body').value = "";
+  selectedImageBase64 = "";
+  tempArticle = {};
+  document.getElementById('news-body').value = "";
 
-      // Close modal
-      document.getElementById('body-editor-modal').style.display = 'none';
+  document.getElementById('body-editor-modal').style.display = 'none';
 
-      // Re-render articles
-      renderArticles(document.querySelector('.cat-tab.active').dataset.category);
+  renderArticles(document.querySelector('.cat-tab.active').dataset.category);
 
-      alert("News story published!");
-    });
+  alert("News story published!");
+});
+
 
 
 
@@ -304,3 +304,25 @@ document.getElementById("logout-btn").addEventListener("click", () => {
 document.getElementById("profile-btn").addEventListener("click", () => {
   window.location.href = "profile.html"
 })
+
+
+
+
+document.getElementById("view-posts-btn").addEventListener("click", () => {
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  const newsData = JSON.parse(localStorage.getItem("newsData")) || [];
+
+  // Filter posts by this user
+  const myArticles = newsData.filter(article => article.author === user.username);
+
+  if (myArticles.length === 0) {
+    alert("You have not published any articles yet.");
+    return;
+  }
+
+  // Save list to localStorage so view-posts.html can read it
+  localStorage.setItem("myArticles", JSON.stringify(myArticles));
+
+  // Redirect to a clean page that shows ONLY your articles
+  window.location.href = "my-posts.html";
+});

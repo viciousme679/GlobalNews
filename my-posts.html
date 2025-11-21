@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Articles</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .post-card {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .post-card img {
+      width: 100%;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>My Published Articles</h1>
+<div id="post-list"></div>
+
+<script>
+  const postContainer = document.getElementById("post-list");
+  const posts = JSON.parse(localStorage.getItem("myArticles")) || [];
+
+  posts.forEach(post => {
+    const card = document.createElement("div");
+    card.className = "post-card";
+
+    card.innerHTML = `
+      <img src="${post.img}" alt="">
+      <h2>${post.title}</h2>
+      <p><b>Category:</b> ${post.category}</p>
+      <p><b>Published:</b> ${post.date}</p>
+      <p>${post.body.substring(0, 150)}...</p>
+    `;
+
+    postContainer.appendChild(card);
+  });
+</script>
+
+</body>
+</html>

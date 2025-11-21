@@ -1,159 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>Profile</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body { font-family: Arial, sans-serif; background:#f4f4f4; padding:30px; }
-    .profile-box { width:420px; margin:auto; background:white; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.08); }
-    .profile-picture { width:120px; height:120px; border-radius:50%; object-fit:cover; display:block; margin:auto; border:3px solid #0d6efd; }
-    .input-box { width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:6px; }
-    button { background:#0d6efd; color:white; padding:10px 18px; border:none; border-radius:6px; cursor:pointer; width:100%; margin-top:10px; }
-    .danger { background:#dc3545; }
-    .row { display:flex; gap:10px; }
-    .half { flex:1; }
-    .small { font-size:13px; color:#666; text-align:center; margin-top:8px; }
-  </style>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Profile</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        padding: 30px;
+      }
+      .profile-box {
+        width: 420px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      }
+      .profile-picture {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        display: block;
+        margin: auto;
+        border: 3px solid #0d6efd;
+      }
+      .input-box {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      button {
+        background: #0d6efd;
+        color: white;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 10px;
+      }
+      .danger {
+        background: #dc3545;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+      .half {
+        flex: 1;
+      }
+      .small {
+        font-size: 13px;
+        color: #666;
+        text-align: center;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="profile-box" id="profile-box">
+      <div class="my-profile" style="display: flex;">
+        <h2><b><a href="index.html" style="text-decoration: none;color: black;">←</a></b></h2>
+        <h2 style="margin-left: 127px;">My Profile</h2>
+      </div>
+      
 
-<div class="profile-box" id="profile-box">
-  <h2 style="text-align:center">My Profile</h2>
+      <img
+        id="profile-pic-preview"
+        class="profile-picture"
+        src="default-profile.png"
+        alt="profile"
+      /><br /><br />
+      <!-- <label style="display: block; text-align: center; margin-top: 8px"
+        ><b>Change Photo</b></label> -->
+      <input
+        type="file"
+        id="profile-photo"
+        accept="image/*"
+        class="input-box"
+        style="display: none;"
+      />
 
-  <img id="profile-pic-preview" class="profile-picture" src="default-profile.png" alt="profile" /><br><br>
-  <label style="display:block;text-align:center;margin-top:8px"><b>Change Photo</b></label>
-  <input type="file" id="profile-photo" accept="image/*" class="input-box">
+      <label><b>Username</b></label>
+      <input type="text" id="profile-username" class="input-box" style="width:395px" readonly/>
 
-  <label><b>Username</b></label>
-  <input type="text" id="profile-username" class="input-box">
+      <label><b>Email</b></label>
+      <input type="email" id="profile-email" class="input-box" style="width:395px" readonly/>
 
-  <label><b>Email</b></label>
-  <input type="email" id="profile-email" class="input-box">
+      <label><b>Password</b></label>
+      <input type="password" id="profile-password" class="input-box" style="width:395px" readonly/>
 
-  <label><b>Password</b></label>
-  <input type="password" id="profile-password" class="input-box">
+        <button id="save-profile-btn" style="display: none;">Save Changes</button>
+        <button id="edit-profile-btn">Edit Profile</button>
 
-  <div class="row" style="margin-top:8px">
-  <button id="save-profile-btn">Save Changes</button>
-  <button id="edit-profile-btn">Edit Profile</button>
-  </div>
+      <div class="row" style="margin-top: 8px">
+        <button id="logout-btn" class="half">Log Out</button>
+        <button id="delete-btn" class="half danger">Delete Account</button>
+      </div>
+      <p class="small" style="display: none;">
+        Changes update both the users list and your active session.
+      </p>
+    </div>
 
-  <div class="row" style="margin-top:8px">
-    <button id="logout-btn" class="half">Log Out</button>
-    <button id="delete-btn" class="half danger">Delete Account</button>
-  </div>
-  <p class="small">Changes update both the users list and your active session.</p>
-</div>
-
-<script>
-/* Same storage schema as auth.html:
+    <script>
+      /* Same storage schema as auth.html:
  - users : array of users
  - loggedInUserId : id of logged-in user
 */
-function getUsers(){ return JSON.parse(localStorage.getItem("users")||"[]"); }
-function saveUsers(users){ localStorage.setItem("users", JSON.stringify(users)); }
-function getLoggedInUserId(){ return localStorage.getItem("loggedInUserId"); }
-function setLoggedInUserId(id){ if(id===null) localStorage.removeItem("loggedInUserId"); else localStorage.setItem("loggedInUserId", id); }
-function findUserIndexById(id){ return getUsers().findIndex(u=>u.id===id); }
-function findUserById(id){ return getUsers().find(u=>u.id===id); }
+      function getUsers() {
+        return JSON.parse(localStorage.getItem("users") || "[]");
+      }
+      function saveUsers(users) {
+        localStorage.setItem("users", JSON.stringify(users));
+      }
+      function getLoggedInUserId() {
+  const id = localStorage.getItem("loggedInUserId");
+  return id === null ? null : Number(id); // convert to number
+}
 
-// Redirect to auth if not logged in
-const loggedId = getLoggedInUserId();
-if (!loggedId) {
+function findUserIndexById(id) {
+  return getUsers().findIndex((u) => u.id === id); // id is number now
+}
+
+
+      function setLoggedInUserId(id) {
+        if (id === null) localStorage.removeItem("loggedInUserId");
+        else localStorage.setItem("loggedInUserId", id);
+      }
+      function findUserIndexById(id) {
+        return getUsers().findIndex((u) => u.id === id);
+      }
+      function findUserById(id) {
+        return getUsers().find((u) => u.id === id);
+      }
+
+      // Redirect to auth if not logged in
+      const loggedId = getLoggedInUserId();
+if (loggedId === null) {
   alert("You must log in first.");
   window.location.href = "auth.html";
 }
-let users = getUsers();
-let userIndex = findUserIndexById(loggedId);
-if (userIndex === -1) {
-  // user not found (maybe deleted in another tab)
-  alert("User not found. Please log in again.");
-  setLoggedInUserId(null);
-  window.location.href = "auth.html";
-}
-let user = users[userIndex];
 
-// Initialize fields
-const pic = document.getElementById("profile-pic-preview");
-document.getElementById("profile-username").value = user.username || "";
-document.getElementById("profile-email").value = user.email || "";
-document.getElementById("profile-password").value = user.password || "";
-pic.src = user.photo || "default-profile.png";
+      let users = getUsers();
+      let userIndex = findUserIndexById(loggedId);
+      if (userIndex === -1) {
+        // user not found (maybe deleted in another tab)
+        alert("User not found. Please log in again.");
+        setLoggedInUserId(null);
+        window.location.href = "auth.html";
+      }
+      let user = users[userIndex];
 
-// Preview photo immediately when chosen
-document.getElementById("profile-photo").addEventListener("change", function(){
-  const file = this.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=> pic.src = reader.result;
-  reader.readAsDataURL(file);
-});
+      users = users.map(u => ({ ...u, id: Number(u.id) }));
+localStorage.setItem("users", JSON.stringify(users));
 
-// Save changes
-document.getElementById("edit-profile-btn").onclick = () => {
-  window.location.href = "edit-profile.html";
-};
 
-document.getElementById("save-profile-btn").onclick = () => {
-  const newUsername = document.getElementById("profile-username").value.trim();
-  const newEmail = document.getElementById("profile-email").value.trim();
-  const newPassword = document.getElementById("profile-password").value;
-  const photoFile = document.getElementById("profile-photo").files[0];
+      // Initialize fields
+      const pic = document.getElementById("profile-pic-preview");
+      document.getElementById("profile-username").value = user.username || "";
+      document.getElementById("profile-email").value = user.email || "";
+      document.getElementById("profile-password").value = user.password || "";
+      pic.src = user.photo || "default-profile.png";
 
-  if(!newUsername || !newEmail || !newPassword){
-    alert("Username, email and password cannot be empty.");
-    return;
-  }
+      // Preview photo immediately when chosen
+      document
+        .getElementById("profile-photo")
+        .addEventListener("change", function () {
+          const file = this.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => (pic.src = reader.result);
+          reader.readAsDataURL(file);
+        });
 
-  // Ensure username uniqueness (allow if it's the same as before)
-  const otherUsers = users.filter((u,i)=> i !== userIndex);
-  if (otherUsers.some(u => u.username.toLowerCase() === newUsername.toLowerCase())) {
-    alert("Username already taken.");
-    return;
-  }
+      // Save changes
+      document.getElementById("edit-profile-btn").onclick = () => {
+        window.location.href = "edit-profile.html";
+      };
 
-  function finishSave(photoData){
-    // Update user object
-    user.username = newUsername;
-    user.email = newEmail;
-    user.password = newPassword;
-    if(photoData !== undefined) user.photo = photoData;
+      document.getElementById("save-profile-btn").onclick = () => {
+        const newUsername = document
+          .getElementById("profile-username")
+          .value.trim();
+        const newEmail = document.getElementById("profile-email").value.trim();
+        const newPassword = document.getElementById("profile-password").value;
+        const photoFile = document.getElementById("profile-photo").files[0];
 
-    // Persist to users array and loggedInUserId remains same
-    users[userIndex] = user;
-    saveUsers(users);
+        if (!newUsername || !newEmail || !newPassword) {
+          alert("Username, email and password cannot be empty.");
+          return;
+        }
 
-    alert("Profile updated!");
-    // Optional: refresh page to force UI re-sync
-    // window.location.reload();
-  }
+        // Ensure username uniqueness (allow if it's the same as before)
+        const otherUsers = users.filter((u, i) => i !== userIndex);
+        if (
+          otherUsers.some(
+            (u) => u.username.toLowerCase() === newUsername.toLowerCase()
+          )
+        ) {
+          alert("Username already taken.");
+          return;
+        }
 
-  if(photoFile){
-    const reader = new FileReader();
-    reader.onload = ()=> finishSave(reader.result);
-    reader.readAsDataURL(photoFile);
-  } else {
-    finishSave();
-  }
-};
+        function finishSave(photoData) {
+          // Update user object
+          user.username = newUsername;
+          user.email = newEmail;
+          user.password = newPassword;
+          if (photoData !== undefined) user.photo = photoData;
 
-// Logout
-document.getElementById("logout-btn").onclick = () => {
-  setLoggedInUserId(null);
-  window.location.href = "auth.html";
-};
+          // Persist to users array and loggedInUserId remains same
+          users[userIndex] = user;
+          saveUsers(users);
 
-// Delete account (removes from users array then logs out)
-document.getElementById("delete-btn").onclick = () => {
-  if (!confirm("Delete your account? This cannot be undone.")) return;
-  users.splice(userIndex, 1);
-  saveUsers(users);
-  setLoggedInUserId(null);
-  alert("Account deleted.");
-  window.location.href = "auth.html";
-};
-</script>
+          alert("Profile updated!");
+          // Optional: refresh page to force UI re-sync
+          // window.location.reload();
+        }
 
-</body>
+        if (photoFile) {
+          const reader = new FileReader();
+          reader.onload = () => finishSave(reader.result);
+          reader.readAsDataURL(photoFile);
+        } else {
+          finishSave();
+        }
+      };
+
+      // Logout
+      document.getElementById("logout-btn").onclick = () => {
+        setLoggedInUserId(null);
+        window.location.href = "auth.html";
+      };
+
+      // Delete account (removes from users array then logs out)
+      document.getElementById("delete-btn").onclick = () => {
+        if (!confirm("Delete your account? This cannot be undone.")) return;
+        users.splice(userIndex, 1);
+        saveUsers(users);
+        setLoggedInUserId(null);
+        alert("Account deleted.");
+        window.location.href = "auth.html";
+      };
+    </script>
+  </body>
 </html>
